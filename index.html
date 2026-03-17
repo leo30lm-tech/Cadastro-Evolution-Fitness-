@@ -806,9 +806,13 @@ Cadastro realizado pelo formulario digital.`;
     const url = `https://wa.me/5524981433386?text=${encodeURIComponent(msg)}`;
     document.getElementById('formMain').style.display = 'none';
     document.getElementById('successWrap').classList.add('show');
-    setTimeout(() => {
-      window.location.href = url;
-    }, 500);
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   }
 
   function novoCadastro() {
