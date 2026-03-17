@@ -469,6 +469,52 @@
     border-radius: 50%;
   }
 
+  .checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 4px 0;
+  }
+
+  .checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--silver-hi);
+    cursor: pointer;
+    padding: 8px 14px;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    background: var(--surface);
+    transition: border-color 0.2s, background 0.2s, color 0.2s;
+    letter-spacing: 0.05em;
+    text-transform: none;
+  }
+
+  .checkbox-item:hover {
+    border-color: var(--border-hi);
+    background: #1a1a1a;
+  }
+
+  .checkbox-item input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    accent-color: var(--red);
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 0;
+    border: none;
+    background: none;
+  }
+
+  .checkbox-item:has(input:checked) {
+    border-color: var(--red);
+    background: var(--red-dim);
+    color: var(--white);
+  }
+
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(16px); }
     to   { opacity: 1; transform: translateY(0); }
@@ -598,6 +644,35 @@
           </div>
         </div>
 
+        <div class="form-section">
+          <div class="section-head">
+            <div class="section-num">03</div>
+            <div class="section-title">Contato e Interesses</div>
+          </div>
+          <div class="fields">
+            <div class="fields col-2">
+              <div class="field">
+                <label for="email">E-mail</label>
+                <input type="email" id="email" placeholder="seu@email.com">
+              </div>
+              <div class="field">
+                <label for="instagram">Instagram</label>
+                <input type="text" id="instagram" placeholder="@seuperfil">
+              </div>
+            </div>
+            <div class="field">
+              <label>Interesse em</label>
+              <div class="checkboxes">
+                <label class="checkbox-item"><input type="checkbox" value="Musculacao"> Musculação</label>
+                <label class="checkbox-item"><input type="checkbox" value="Funcional"> Funcional</label>
+                <label class="checkbox-item"><input type="checkbox" value="Spinning"> Spinning</label>
+                <label class="checkbox-item"><input type="checkbox" value="Personal Trainer"> Personal Trainer</label>
+                <label class="checkbox-item"><input type="checkbox" value="Pump/Jump"> Pump / Jump</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="form-footer">
           <p class="submit-note">Ao enviar, você concorda que seus dados sejam utilizados exclusivamente para fins de matrícula na Evolution Fitness.</p>
           <button class="btn-submit" onclick="enviarCadastro()">Enviar via WhatsApp</button>
@@ -670,15 +745,20 @@
   }
 
   function enviarCadastro() {
-    const nome   = document.getElementById('nome').value.trim();
-    const cpf    = document.getElementById('cpf').value.trim();
-    const nasc   = document.getElementById('nascimento').value;
-    const wpp    = document.getElementById('whatsapp').value.trim();
-    const rua    = document.getElementById('rua').value.trim();
-    const bairro = document.getElementById('bairro').value.trim();
-    const cidade = document.getElementById('cidade').value.trim();
-    const estado = document.getElementById('estado').value;
-    const cep    = document.getElementById('cep').value.trim();
+    const nome      = document.getElementById('nome').value.trim();
+    const cpf       = document.getElementById('cpf').value.trim();
+    const nasc      = document.getElementById('nascimento').value;
+    const wpp       = document.getElementById('whatsapp').value.trim();
+    const email     = document.getElementById('email').value.trim();
+    const instagram = document.getElementById('instagram').value.trim();
+    const rua       = document.getElementById('rua').value.trim();
+    const bairro    = document.getElementById('bairro').value.trim();
+    const cidade    = document.getElementById('cidade').value.trim();
+    const estado    = document.getElementById('estado').value;
+    const cep       = document.getElementById('cep').value.trim();
+
+    const interesses = Array.from(document.querySelectorAll('.checkboxes input:checked'))
+      .map(cb => cb.value).join(', ') || 'Nao informado';
 
     let ok = true;
     ok = setError('nome',       'err-nome',   nome.split(' ').length < 2 || nome.length < 4) && ok;
@@ -705,6 +785,8 @@ Nome: ${nome}
 CPF: ${cpf}
 Data de Nascimento: ${nascFmt}
 WhatsApp: ${wpp}
+E-mail: ${email || 'Nao informado'}
+Instagram: ${instagram || 'Nao informado'}
 
 ——————————————————————
 ENDERECO
@@ -713,6 +795,11 @@ Rua: ${rua}
 Bairro: ${bairro}
 Cidade: ${cidade} / ${estado}
 CEP: ${cep}
+
+——————————————————————
+INTERESSES
+——————————————————————
+${interesses}
 ——————————————————————
 Cadastro realizado pelo formulario digital.`;
 
@@ -727,12 +814,10 @@ Cadastro realizado pelo formulario digital.`;
   function novoCadastro() {
     document.getElementById('formMain').style.display = '';
     document.getElementById('successWrap').classList.remove('show');
-    document.querySelectorAll('input').forEach(i => i.value = '');
+    document.querySelectorAll('input[type="text"], input[type="tel"], input[type="email"], input[type="date"]').forEach(i => i.value = '');
+    document.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false);
     document.getElementById('estado').value = '';
     document.querySelectorAll('.error').forEach(e => e.classList.remove('error'));
     document.querySelectorAll('.field-error').forEach(e => e.classList.remove('show'));
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
-</script>
-</body>
-</html>
