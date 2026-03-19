@@ -1,15 +1,11 @@
-<!-- ADICIONE ISSO ANTES DO SEU <script> -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
 const supabase = window.supabase.createClient(
-  'SEU_SUPABASE_URL',
-  'SUA_ANON_KEY'
+  'https://wxhopowiowujebscvrkw.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4aG9wb3dpb3d1amVic2N2cnt3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NzYyMTAsImV4cCI6MjA4OTQ1MjIxMH0.mWlXrr5TYzFo3S8mCJw4cps-IVz9CdHpyfD-O7A5-us'
 );
 
-// =========================
-// FUNÇÃO PRINCIPAL
-// =========================
 async function enviarCadastro() {
 
   const nome      = document.getElementById('nome').value.trim();
@@ -27,15 +23,15 @@ async function enviarCadastro() {
   const interesses = Array.from(document.querySelectorAll('.checkboxes input:checked'))
     .map(cb => cb.value).join(', ') || 'Nao informado';
 
-  // =========================
-  // FORMATAR DATA
-  // =========================
+  if (!nome || !cpf || !nasc || !wpp) {
+    alert('Preencha todos os campos obrigatórios!');
+    return;
+  }
+
   const [y, m, d] = nasc.split('-');
   const nascFmt = `${d}/${m}/${y}`;
 
-  // =========================
-  // SALVAR NO BANCO
-  // =========================
+  // 🔥 SALVAR NO BANCO
   const { data, error } = await supabase
     .from('alunos')
     .insert([{
@@ -56,51 +52,26 @@ async function enviarCadastro() {
   console.log('SALVO:', data);
   console.log('ERRO:', error);
 
-  // =========================
-  // MENSAGEM WHATSAPP
-  // =========================
+  if (error) {
+    alert('Erro ao salvar no banco. Verifique o console.');
+    return;
+  }
+
+  // 🔥 WHATSAPP
   const msg =
 `EVOLUTION FITNESS — FICHA DE MATRICULA
 
-——————————————————————
-DADOS PESSOAIS
-——————————————————————
 Nome: ${nome}
 CPF: ${cpf}
-Data de Nascimento: ${nascFmt}
+Nascimento: ${nascFmt}
 WhatsApp: ${wpp}
-E-mail: ${email || 'Nao informado'}
-Instagram: ${instagram || 'Nao informado'}
-
-——————————————————————
-ENDERECO
-——————————————————————
-Rua: ${rua}
-Bairro: ${bairro}
-Cidade: ${cidade} / ${estado}
-CEP: ${cep}
-
-——————————————————————
-PLANO ESCOLHIDO
-——————————————————————
-${interesses}
-——————————————————————
-Cadastro realizado pelo formulario digital.`;
+Plano: ${interesses}`;
 
   const url = `https://wa.me/5524981433386?text=${encodeURIComponent(msg)}`;
 
-  // =========================
-  // UI + REDIRECIONAMENTO
-  // =========================
   document.getElementById('formMain').style.display = 'none';
   document.getElementById('successWrap').classList.add('show');
 
-  const a = document.createElement('a');
-  a.href = url;
-  a.target = '_blank';
-  a.rel = 'noopener';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
+  window.open(url, '_blank');
 }
 </script>
