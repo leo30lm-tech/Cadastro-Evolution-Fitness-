@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Evolution Fitness — Ficha de Matrícula</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
     --bg:        #0a0a0a;
@@ -109,7 +108,7 @@
     cursor: pointer; transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
     box-shadow: 0 4px 24px rgba(196,26,26,0.25);
   }
-  .btn-submit:hover { background: #d42020; transform: translateY(-1px); box-shadow: 0 8px 32px rgba(196,26,26,0.4); }
+  .btn-submit:hover { background: #d42020; transform: translateY(-1px); }
   .btn-submit:active { transform: scale(0.98); }
   .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
@@ -305,8 +304,11 @@
 
 <div class="toast" id="toast"></div>
 
-<script>
-  const sb = window.supabase.createClient(
+<!-- Supabase carregado via CDN com módulo ES -->
+<script type="module">
+  import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+  const sb = createClient(
     'https://wxhopowiowujebscvrkw.supabase.co',
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4aG9wb3dpb3d1amVic2N2cnt3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NzYyMTAsImV4cCI6MjA4OTQ1MjIxMH0.mWlXrr5TYzFo3S8mCJw4cps-IVz9CdHpyfD-O7A5-us'
   );
@@ -339,7 +341,7 @@
     e.target.value = v;
   });
 
-  async function enviarCadastro() {
+  window.enviarCadastro = async function() {
     try {
       const nome      = document.getElementById('nome').value.trim();
       const cpf       = document.getElementById('cpf').value.trim();
@@ -429,16 +431,16 @@ Cadastro realizado pelo formulario digital.`;
       console.error('ERRO GERAL:', err);
       alert('Erro inesperado. Tente novamente.');
     }
-  }
+  };
 
-  function novoCadastro() {
+  window.novoCadastro = function() {
     document.getElementById('formMain').style.display = '';
     document.getElementById('successWrap').classList.remove('show');
     document.querySelectorAll('input[type="text"], input[type="tel"], input[type="email"], input[type="date"]').forEach(i => i.value = '');
     document.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false);
     document.getElementById('estado').value = '';
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
+  };
 </script>
 </body>
 </html>
