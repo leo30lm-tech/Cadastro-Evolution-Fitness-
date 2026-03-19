@@ -1,91 +1,100 @@
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <script>
-console.log('SCRIPT INICIADO');
+  // ✅ SUPABASE CORRETO
+  const sb = window.supabase.createClient(
+    'https://wxhopowiowujebscvrkw.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4aG9wb3dpb3d1amVic2N2cnt3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NzYyMTAsImV4cCI6MjA4OTQ1MjIxMH0.mWlXrr5TYzFo3S8mCJw4cps-IVz9CdHpyfD-O7A5-us'
+  );
 
-// ✅ proteção contra erro de carregamento
-if (!window.supabase) {
-  console.error('Supabase NÃO carregou!');
-}
+  function showToast(msg, duration = 3500) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), duration);
+  }
 
-const supabaseClient = window.supabase.createClient(
-  'https://wxhopowiowujebscvrkw.supabase.co',
-  'SUA_KEY_AQUI'
-);
+  async function enviarCadastro() {
 
-async function enviarCadastro() {
+    try {
 
-  try {
+      const nome      = document.getElementById('nome').value.trim();
+      const cpf       = document.getElementById('cpf').value.trim();
+      const nasc      = document.getElementById('nascimento').value;
+      const wpp       = document.getElementById('whatsapp').value.trim();
+      const email     = document.getElementById('email').value.trim();
+      const instagram = document.getElementById('instagram').value.trim();
+      const rua       = document.getElementById('rua').value.trim();
+      const bairro    = document.getElementById('bairro').value.trim();
+      const cidade    = document.getElementById('cidade').value.trim();
+      const estado    = document.getElementById('estado').value;
+      const cep       = document.getElementById('cep').value.trim();
 
-    const nome      = document.getElementById('nome').value.trim();
-    const cpf       = document.getElementById('cpf').value.trim();
-    const nasc      = document.getElementById('nascimento').value;
-    const wpp       = document.getElementById('whatsapp').value.trim();
-    const email     = document.getElementById('email').value.trim();
-    const instagram = document.getElementById('instagram').value.trim();
-    const rua       = document.getElementById('rua').value.trim();
-    const bairro    = document.getElementById('bairro').value.trim();
-    const cidade    = document.getElementById('cidade').value.trim();
-    const estado    = document.getElementById('estado').value;
-    const cep       = document.getElementById('cep').value.trim();
+      const plano = Array.from(document.querySelectorAll('.checkboxes input:checked'))
+        .map(cb => cb.value).join(', ') || 'Nao informado';
 
-    const interesses = Array.from(document.querySelectorAll('.checkboxes input:checked'))
-      .map(cb => cb.value).join(', ') || 'Nao informado';
+      if (!nome || !cpf || !nasc || !wpp) {
+        alert('Preencha todos os campos obrigatórios!');
+        return;
+      }
 
-    if (!nome || !cpf || !nasc || !wpp) {
-      alert('Preencha todos os campos obrigatórios!');
-      return;
-    }
+      const btn = document.getElementById('btnSubmit');
+      btn.disabled = true;
+      btn.textContent = 'Enviando...';
 
-    const [y, m, d] = nasc.split('-');
-    const nascFmt = `${d}/${m}/${y}`;
+      const [y, m, d] = nasc.split('-');
+      const nascFmt = `${d}/${m}/${y}`;
 
-    // 🔥 SALVAR NO BANCO
-    const { data, error } = await supabaseClient
-      .from('alunos')
-      .insert([{
+      // 🔥 SALVAR NO BANCO
+      const { error } = await sb.from('alunos').insert([{
         nome,
         cpf,
         nascimento: nascFmt,
         whatsapp: wpp,
-        email,
-        instagram,
+        email: email || null,
+        instagram: instagram || null,
         rua,
         bairro,
         cidade,
         estado,
         cep,
-        plano: interesses
+        plano
       }]);
 
-    console.log('SALVO:', data);
-    console.log('ERRO:', error);
+      if (error) {
+        console.error('Erro Supabase:', error);
+        showToast('Erro ao salvar no banco');
+      }
 
-    if (error) {
-      alert('Erro ao salvar no banco.');
-      return;
-    }
-
-    // 🔥 WHATSAPP
-    const msg =
+      // 🔥 WHATSAPP
+      const msg =
 `EVOLUTION FITNESS — FICHA DE MATRICULA
 
 Nome: ${nome}
 CPF: ${cpf}
 Nascimento: ${nascFmt}
 WhatsApp: ${wpp}
-Plano: ${interesses}`;
+Plano: ${plano}`;
 
-    const url = `https://wa.me/5524981433386?text=${encodeURIComponent(msg)}`;
+      document.getElementById('formMain').style.display = 'none';
+      document.getElementById('successWrap').classList.add('show');
 
-    document.getElementById('formMain').style.display = 'none';
-    document.getElementById('successWrap').classList.add('show');
+      const url = `https://wa.me/5524981433386?text=${encodeURIComponent(msg)}`;
+      window.open(url, '_blank');
 
-    window.open(url, '_blank');
+      btn.disabled = false;
+      btn.textContent = 'Finalizar Matrícula no WhatsApp';
 
-  } catch (err) {
-    console.error('ERRO GERAL:', err);
-    alert('Erro inesperado. Veja o console.');
+    } catch (err) {
+      console.error('ERRO GERAL:', err);
+      alert('Erro inesperado. Veja o console.');
+    }
   }
-}
+
+  function novoCadastro() {
+    document.getElementById('formMain').style.display = '';
+    document.getElementById('successWrap').classList.remove('show');
+    document.querySelectorAll('input').forEach(i => i.value = '');
+    document.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false);
+    document.getElementById('estado').value = '';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 </script>
