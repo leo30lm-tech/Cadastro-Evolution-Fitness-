@@ -416,7 +416,9 @@ Cadastro realizado pelo formulario digital.`;
       document.getElementById('formMain').style.display = 'none';
       document.getElementById('successWrap').classList.add('show');
 
-      window.location.href = `https://wa.me/5524981433386?text=${encodeURIComponent(msg)}`;
+      setTimeout(() => {
+        window.open(`https://wa.me/5524981433386?text=${encodeURIComponent(msg)}`, '_blank');
+      }, 300);
 
       btn.disabled = false;
       btn.textContent = 'Finalizar Matrícula no WhatsApp';
