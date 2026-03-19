@@ -1,64 +1,73 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-const supabase = window.supabase.createClient(
+console.log('SCRIPT INICIADO');
+
+// ✅ proteção contra erro de carregamento
+if (!window.supabase) {
+  console.error('Supabase NÃO carregou!');
+}
+
+const supabaseClient = window.supabase.createClient(
   'https://wxhopowiowujebscvrkw.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4aG9wb3dpb3d1amVic2N2cnt3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4NzYyMTAsImV4cCI6MjA4OTQ1MjIxMH0.mWlXrr5TYzFo3S8mCJw4cps-IVz9CdHpyfD-O7A5-us'
+  'SUA_KEY_AQUI'
 );
 
 async function enviarCadastro() {
 
-  const nome      = document.getElementById('nome').value.trim();
-  const cpf       = document.getElementById('cpf').value.trim();
-  const nasc      = document.getElementById('nascimento').value;
-  const wpp       = document.getElementById('whatsapp').value.trim();
-  const email     = document.getElementById('email').value.trim();
-  const instagram = document.getElementById('instagram').value.trim();
-  const rua       = document.getElementById('rua').value.trim();
-  const bairro    = document.getElementById('bairro').value.trim();
-  const cidade    = document.getElementById('cidade').value.trim();
-  const estado    = document.getElementById('estado').value;
-  const cep       = document.getElementById('cep').value.trim();
+  try {
 
-  const interesses = Array.from(document.querySelectorAll('.checkboxes input:checked'))
-    .map(cb => cb.value).join(', ') || 'Nao informado';
+    const nome      = document.getElementById('nome').value.trim();
+    const cpf       = document.getElementById('cpf').value.trim();
+    const nasc      = document.getElementById('nascimento').value;
+    const wpp       = document.getElementById('whatsapp').value.trim();
+    const email     = document.getElementById('email').value.trim();
+    const instagram = document.getElementById('instagram').value.trim();
+    const rua       = document.getElementById('rua').value.trim();
+    const bairro    = document.getElementById('bairro').value.trim();
+    const cidade    = document.getElementById('cidade').value.trim();
+    const estado    = document.getElementById('estado').value;
+    const cep       = document.getElementById('cep').value.trim();
 
-  if (!nome || !cpf || !nasc || !wpp) {
-    alert('Preencha todos os campos obrigatórios!');
-    return;
-  }
+    const interesses = Array.from(document.querySelectorAll('.checkboxes input:checked'))
+      .map(cb => cb.value).join(', ') || 'Nao informado';
 
-  const [y, m, d] = nasc.split('-');
-  const nascFmt = `${d}/${m}/${y}`;
+    if (!nome || !cpf || !nasc || !wpp) {
+      alert('Preencha todos os campos obrigatórios!');
+      return;
+    }
 
-  // 🔥 SALVAR NO BANCO
-  const { data, error } = await supabase
-    .from('alunos')
-    .insert([{
-      nome,
-      cpf,
-      nascimento: nascFmt,
-      whatsapp: wpp,
-      email,
-      instagram,
-      rua,
-      bairro,
-      cidade,
-      estado,
-      cep,
-      plano: interesses
-    }]);
+    const [y, m, d] = nasc.split('-');
+    const nascFmt = `${d}/${m}/${y}`;
 
-  console.log('SALVO:', data);
-  console.log('ERRO:', error);
+    // 🔥 SALVAR NO BANCO
+    const { data, error } = await supabaseClient
+      .from('alunos')
+      .insert([{
+        nome,
+        cpf,
+        nascimento: nascFmt,
+        whatsapp: wpp,
+        email,
+        instagram,
+        rua,
+        bairro,
+        cidade,
+        estado,
+        cep,
+        plano: interesses
+      }]);
 
-  if (error) {
-    alert('Erro ao salvar no banco. Verifique o console.');
-    return;
-  }
+    console.log('SALVO:', data);
+    console.log('ERRO:', error);
 
-  // 🔥 WHATSAPP
-  const msg =
+    if (error) {
+      alert('Erro ao salvar no banco.');
+      return;
+    }
+
+    // 🔥 WHATSAPP
+    const msg =
 `EVOLUTION FITNESS — FICHA DE MATRICULA
 
 Nome: ${nome}
@@ -67,11 +76,16 @@ Nascimento: ${nascFmt}
 WhatsApp: ${wpp}
 Plano: ${interesses}`;
 
-  const url = `https://wa.me/5524981433386?text=${encodeURIComponent(msg)}`;
+    const url = `https://wa.me/5524981433386?text=${encodeURIComponent(msg)}`;
 
-  document.getElementById('formMain').style.display = 'none';
-  document.getElementById('successWrap').classList.add('show');
+    document.getElementById('formMain').style.display = 'none';
+    document.getElementById('successWrap').classList.add('show');
 
-  window.open(url, '_blank');
+    window.open(url, '_blank');
+
+  } catch (err) {
+    console.error('ERRO GERAL:', err);
+    alert('Erro inesperado. Veja o console.');
+  }
 }
 </script>
